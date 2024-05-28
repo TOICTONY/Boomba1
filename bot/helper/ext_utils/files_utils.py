@@ -1,7 +1,6 @@
-
+import os
 import json
 
-import os
 from os import path as ospath, walk
 from shutil import rmtree, disk_usage
 from sys import exit as sexit
@@ -388,7 +387,7 @@ async def change_metadata(file, dirpath, key):
     full_file_path = os.path.join(dirpath, file)
     temp_file_path = os.path.join(dirpath, temp_file)
     
-    cmd = ['ffprobe', '-hide_banner', '-loglevel', 'error', '-print_format', 'json', '-show_streams', full_file_path]
+    cmd = ['ffprobe', '-hide_banner', '-loglevel', 'error', '-print_format', 'json', '-show_streams', '-show_format', full_file_path]
     process = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = await process.communicate()
     
@@ -396,9 +395,20 @@ async def change_metadata(file, dirpath, key):
         LOGGER.error(f"Error getting stream info: {stderr.decode().strip()}")
         return file
     
-    streams = json.loads(stdout)['streams']
+    metadata = json.loads(stdout)
+    streams = metadata['streams']
+    format_metadata = metadata['format'].get('tags', {})
     
     cmd = ['render', '-y', '-i', full_file_path, '-c', 'copy', '-metadata', f'title={key}']
+    
+    # Unset unwanted metadata at the container level
+    unset_metadata_keys = ['LICENCE', 'author', 'filename', 'mimetype', 'SUMMARY', 'WEBSITE', 'COMMENT', 'ENCODER']
+    for unset_key in unset_metadata_keys:
+        if unset_key in format_metadata:
+            cmd.extend(['-metadata', f'{unset_key}='])
+
+    # Explicitly unset description and copyright
+    cmd.extend(['-metadata', 'description=', '', '-metadata', 'copyright=', ''])
     
     audio_index = 0
     subtitle_index = 0
@@ -417,6 +427,11 @@ async def change_metadata(file, dirpath, key):
         elif stream_type == 'subtitle':
             cmd.extend([f'-metadata:s:s:{subtitle_index}', f'title={key}'])
             subtitle_index += 1
+        
+        # Unset unwanted metadata at the stream level
+        for unset_key in unset_metadata_keys + ['description', 'copyright']:
+            if 'tags' in stream and unset_key in stream['tags']:
+                cmd.extend([f'-metadata:s:{stream_index}:{unset_key}=', ''])
     
     cmd.append(temp_file_path)
     
@@ -424,6 +439,8 @@ async def change_metadata(file, dirpath, key):
     await process.wait()
     
     if process.returncode != 0:
+        err = (await process.stderr.read()).decode().strip()
+        LOGGER.error(err)
         LOGGER.error(f"Error changing metadata for file: {file}")
         return file
     
