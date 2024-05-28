@@ -74,22 +74,22 @@ async def stats(_, message):
     cpuUsage = cpu_percent(interval=0.5)
     quote = Quote.print().split('―', 1)[0].strip().replace("“", "").replace("”", "")
     limit_mapping = {
-        'Torrent'  : config_dict.get('TORRENT_LIMIT',  '∞'),
-        'Gdrive'   : config_dict.get('GDRIVE_LIMIT',   '∞'),
-        'Ytdlp'    : config_dict.get('YTDLP_LIMIT',    '∞'),
-        'Direct'   : config_dict.get('DIRECT_LIMIT',   '∞'),
-        'Leech'    : config_dict.get('LEECH_LIMIT',    '∞'),
-        'Clone'    : config_dict.get('CLONE_LIMIT',    '∞'),
-        'Mega'     : config_dict.get('MEGA_LIMIT',     '∞'),
-        'User task': config_dict.get('USER_MAX_TASKS', '∞')}
+       'Torrent🧲'  : config_dict.get('TORRENT_LIMIT',  '∞'),
+        'Gdrive☁️'   : config_dict.get('GDRIVE_LIMIT',   '∞'),
+        'Ytdlp📺'    : config_dict.get('YTDLP_LIMIT',    '∞'),
+        'Direct🎯'   : config_dict.get('DIRECT_LIMIT',   '∞'),
+        'Leech📁'    : config_dict.get('LEECH_LIMIT',    '∞'),
+        'Clone🎗️'    : config_dict.get('CLONE_LIMIT',    '∞'),
+        'MegaⓂ️'     : config_dict.get('MEGA_LIMIT',     '∞'),
+        'User task🚹': config_dict.get('USER_MAX_TASKS', '∞')}
     system_info = f'<b>{quote}</b>\n\n'\
-        f'<code>• Bot uptime :</code> {currentTime}\n'\
-        f'<code>• Sys uptime :</code> {osUptime}\n'\
-        f'<code>• CPU usage  :</code> {cpuUsage}%\n'\
-        f'<code>• RAM usage  :</code> {memory.percent}%\n'\
-        f'<code>• Disk usage :</code> {disk}%\n'\
-        f'<code>• Free space :</code> {get_readable_file_size(free)}\n'\
-        f'<code>• Total space:</code> {get_readable_file_size(total)}\n\n'
+        f'<code>• Bot uptime⏰ :</code> {currentTime}\n'\
+        f'<code>• Sys uptime✊ :</code> {osUptime}\n'\
+        f'<code>• CPU usage🖥️  :</code> {cpuUsage}%\n'\
+        f'<code>• RAM usage💽  :</code> {memory.percent}%\n'\
+        f'<code>• Disk usage📦 :</code> {disk}%\n'\
+        f'<code>• Free space🗄️ :</code> {get_readable_file_size(free)}\n'\
+        f'<code>• Total space📂:</code> {get_readable_file_size(total)}\n\n'
             
     limitations = f'<b>LIMITATIONS</b>\n\n'
     
@@ -147,7 +147,7 @@ async def start(client, message):
 
 
 async def restart(client, message):
-    restart_message = await sendMessage(message, 'Restarting...')
+    restart_message = await sendMessage(message, 'Restarting...😌')
     if scheduler.running:
         scheduler.shutdown(wait=False)
     for interval in [QbInterval, Interval]:
@@ -244,7 +244,7 @@ async def restart_notification():
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
         try:
-            await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text='Restarted Successfully!')
+            await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text='Restarted Successfully🤴')
         except:
             pass
         await aioremove(".restartmsg")
